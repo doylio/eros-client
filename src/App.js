@@ -15,10 +15,18 @@ class App extends Component {
   }
   render() {
     if(this.state.route === 'home') {
-      return <Home />;
+      return <Home logout={this.logout} />;
     } else {
-      return <Login />;
+      return <Login login={this.login} />;
     }
+  }
+
+  login = () => {
+    this.setState({route: 'home'});
+  }
+
+  logout = () => {
+    this.setState({route: 'login'});
   }
 }
 
