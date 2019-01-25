@@ -3,8 +3,8 @@ import React, { Component } from 'react';
 
 //Local
 import './App.css';
-import Home from './components/Home/Home';
-import Login from './components/Login/Login';
+import Home from './components/Home';
+import Login from './components/Login';
 
 class App extends Component {
   constructor() {
