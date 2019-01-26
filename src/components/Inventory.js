@@ -10,7 +10,8 @@ class Inventory extends Component {
 	constructor(props) {
 		super();
 		this.state = {
-			modalOpen: true,
+			editModalOpen: true,
+			createModalOpen: false,
 			switchChecked: true,
 		};
 	}
@@ -65,7 +66,7 @@ class Inventory extends Component {
 		        		</tr>
 		        	</tbody>
 		      	</table>
-		      	<Modal open={this.state.modalOpen} onClose={this.onCloseModal} classNames={modalStyle} center>
+		      	<Modal open={this.state.editModalOpen} onClose={this.onCloseEditModal} classNames={modalStyle} center>
 		      		<div>
 		      			<div className='row'>
 			      			<h2 className='col-9 card-title'>Delta</h2>
@@ -84,15 +85,47 @@ class Inventory extends Component {
 		      			</div>
 		      		</div>
 		      	</Modal>
+		      	<Modal open={this.state.createModalOpen} onClose={this.onCloseCreateModal} classNames={modalStyle} center>
+			      		<div>
+			      			<div className='row'>
+				      			<h2 className='col-8 card-title'>Create New User</h2>
+							</div>
+			      			<div className='container border'>
+			      				<div className='row py-2'>
+				      				<div className='col-1'></div>
+				      				<p className='col-6'>Enter Username:</p>
+				      				<input className='col-4' type='text' />
+				      			</div>
+				      			<div className='row py-2'>
+				      				<div className='col-1'></div>
+				      				<p className='col-6'>Enter Password:</p>
+				      				<input className='col-4' type='password' />
+				      			</div>
+				      			<div className='row py-2'>
+				      				<div className='col-1'></div>
+				      				<p className='col-6'>Confirm Password:</p>
+				      				<input className='col-4' type='password' />
+				      			</div>
+				      			<div className='row my-2'>
+				      				<div className='col-7'></div>
+				      				<p><input type='checkbox' />&nbsp;Administrator</p>
+				      			</div>
+			      			</div>			      			
+			      			<div className='d-flex justify-content-center' style={{marginTop: '40px'}}>
+				      			<button className='btn btn-success'>Create User</button>
+			      			</div>
+
+			      		</div>
+			      	</Modal>
 		    </div>
     	);
 	}
 
 	onOpenModal = () => {
-		this.setState({modalOpen: true});
+		this.setState({editModalOpen: true});
 	}
-	onCloseModal = () => {
-		this.setState({modalOpen: false});
+	onCloseEditModal = () => {
+		this.setState({editModalOpen: false});
 	}
 	toggleSwitch = (switchChecked) => {
 		this.setState({switchChecked});

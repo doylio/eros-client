@@ -10,7 +10,7 @@ class App extends Component {
   constructor() {
     super()
     this.state = {
-      route: 'login', //Change to login later
+      route: 'home', //Change to login later
     }
   }
   render() {

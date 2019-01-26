@@ -5,14 +5,18 @@ import Switch from 'react-switch';
 
 //Local
 import './modal.css';
+import LoadingBox from './LoadingBox';
 
 
 class Admin extends Component {
 	constructor(props) {
 		super();
 		this.state = {
-			modalOpen: true,
-			switchChecked: true
+			editModalOpen: true,
+			createModalOpen: false,
+			switchChecked: true,
+			loading: false,
+			errorMsg: '',
 		}
 	}
 
@@ -24,7 +28,7 @@ class Admin extends Component {
   		if(this.props.superuser) {
   			return (
 			    <div>
-					<table className='table table-light table-hover'>
+					<table className='table table-light table-hover mb-0'>
 			        	<thead className='thead-dark'>
 			        		<tr>
 			        			<th scope='col'>#</th>
@@ -66,7 +70,11 @@ class Admin extends Component {
 			        		</tr>
 			        	</tbody>
 			      	</table>
-			      	<Modal open={this.state.modalOpen} onClose={this.onCloseModal} classNames={modalStyle} center>
+	        		<div className='bg-light p-2 d-flex justify-content-center'>
+	        			<button className='btn btn-success m-auto'>New User</button>
+	        		</div>
+
+			      	<Modal open={this.state.editModalOpen} onClose={this.onCloseEditModal} classNames={modalStyle} center>
 			      		<div>
 			      			<div className='row'>
 				      			<h2 className='col-8 card-title'>shawn.doyle</h2>
@@ -98,7 +106,40 @@ class Admin extends Component {
 			      			<div className='float-none' style={{marginTop: '40px'}}>
 				      			<button className='btn btn-danger'>Delete User</button>
 			      			</div>
+			      			<LoadingBox loading={this.state.loading} errorMsg={this.state.errorMsg} />
+			      		</div>
+			      	</Modal>
 
+			      	<Modal open={this.state.createModalOpen} onClose={this.onCloseCreateModal} classNames={modalStyle} center>
+			      		<div>
+			      			<div className='row'>
+				      			<h2 className='col-8 card-title'>Create New User</h2>
+							</div>
+			      			<div className='container border'>
+			      				<div className='row py-2'>
+				      				<div className='col-1'></div>
+				      				<p className='col-6'>Enter Username:</p>
+				      				<input className='col-4' type='text' />
+				      			</div>
+				      			<div className='row py-2'>
+				      				<div className='col-1'></div>
+				      				<p className='col-6'>Enter Password:</p>
+				      				<input className='col-4' type='password' />
+				      			</div>
+				      			<div className='row py-2'>
+				      				<div className='col-1'></div>
+				      				<p className='col-6'>Confirm Password:</p>
+				      				<input className='col-4' type='password' />
+				      			</div>
+				      			<div className='row my-2'>
+				      				<div className='col-7'></div>
+				      				<p><input type='checkbox' />&nbsp;Administrator</p>
+				      			</div>
+			      			</div>			      			
+			      			<div className='d-flex justify-content-center' style={{marginTop: '40px'}}>
+				      			<button className='btn btn-success'>Create User</button>
+			      			</div>
+			      			<LoadingBox loading={this.state.loading} errorMsg={this.state.errorMsg} />
 			      		</div>
 			      	</Modal>
 			    </div>
@@ -112,12 +153,20 @@ class Admin extends Component {
   		}
   	}
 
-  	onOpenModal = () => {
-  		this.setState({modalOpen: true});
+  	onOpenEditModal = () => {
+  		this.setState({editModalOpen: true});
   	}
 
-  	onCloseModal = () => {
-  		this.setState({modalOpen: false});
+  	onCloseEditModal = () => {
+  		this.setState({editModalOpen: false});
+  	}
+
+  	onOpenCreateModal = () => {
+  		this.setState({createModalOpen: true});
+  	}
+
+  	onCloseCreateModal = () => {
+  		this.setState({createModalOpen: false});
   	}
 
   	toggleSwitch = (switchChecked) => {

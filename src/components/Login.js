@@ -1,9 +1,9 @@
 //Libraries
 import React, { Component } from 'react';
-import {ClipLoader} from 'react-spinners';
 
 //Local
 import logo from './bow-and-arrow.png';
+import LoadingBox from './LoadingBox';
 import {serverUrl} from './../config/config.json';
 
 class Login extends Component {
@@ -37,13 +37,7 @@ class Login extends Component {
 							</div>
 						 	<button onClick={this.onLoginButton} className="btn btn-danger">Login</button>
 						 	<div className='container pt-2'>
-						 		<div className='d-flex justify-content-center'>
-							 		<ClipLoader 
-							 			loading={this.state.loading} 
-							 			color={'#eee'}
-							 		/>
-							 		<h6 className='text-danger text-monospace'>{this.state.errorMsg}</h6>
-						 		</div>
+						 		<LoadingBox loading={this.state.loading} errorMsg={this.state.errorMsg} color={'#EEE'} />
 						 	</div>
 			        	</div>
 			        </div>
