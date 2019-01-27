@@ -20,6 +20,9 @@ class Inventory extends Component {
 				stackType: '',
 				notes: '',
 			},
+			NSName: '',
+			NSStack: '',
+			NSNotes: '',
 			createModalOpen: false,
 			switchChecked: true,
 			errorMsg: '',
@@ -83,30 +86,40 @@ class Inventory extends Component {
 		      	<Modal open={this.state.createModalOpen} onClose={this.onCloseCreateModal} classNames={modalStyle} center>
 			      		<div>
 			      			<div className='row'>
-				      			<h2 className='col-8 card-title'>Create New Server</h2>
+				      			<h2 className='col-8 card-title'>New Server</h2>
 							</div>
 			      			<div className='container border'>
 			      				<div className='row py-2'>
 				      				<div className='col-1'></div>
 				      				<p className='col-6'>Name:</p>
-				      				<input className='col-4' type='text' />
+				      				<input className='col-4' type='text' onChange={this.onNSNameChange} />
 				      			</div>
 				      			<div className='row py-2'>
 				      				<div className='col-1'></div>
 				      				<p className='col-6'>Select Stack Type:</p>
-				      				<select>
-				      						<option>-</option>
+				      				<select onChange={this.onNSStackChange}>
+				      						<option value=''>-</option>
 				      						<option value='LAMP'>LAMP</option>
 				      						<option value='MEAN'>MEAN</option>
 				      						<option value='Ruby'>Ruby</option>
 				      						<option value='Django'>Django</option>
 				      				</select>
 				      			</div>
+				      			<div className='row pt-2'>
+				      				<div className='col-1'></div>
+				      				<p className='col-6'>Notes:</p>
+				      			</div>
+				      			<div className='row'>
+				      				<div className='col-1'></div>
+				      				<div className='col-10'>
+				      					<textarea className='w-100' onChange={this.onNSNotesChange}></textarea>
+				      				</div>
+				      			</div>				      			
 			      			</div>			      			
 			      			<div className='d-flex justify-content-center' style={{marginTop: '40px'}}>
-				      			<button className='btn btn-success'>Create Server</button>
+				      			<button className='btn btn-success' onClick={this.onNewServerButton} >Create Server</button>
 			      			</div>
-
+			      			<LoadingBox loading={this.state.loading} errorMsg={this.state.errorMsg} />
 			      		</div>
 			    </Modal>
 		    </div>
@@ -150,10 +163,51 @@ class Inventory extends Component {
 		        		</tr>
 		        	);
 				}
-				console.log(json);
 				this.setState({itemList, loading: false});
 			}).catch(e => {
 				this.setState({loading: false, errorMsg: 'Unable to retrieve Inventory'});
+			});
+	}
+
+	onNewServerButton = () => {
+		if(this.state.NSName === '' || this.state.NSStack === '') {
+			return this.setState({errorMsg: "Please select name and stack type"})
+		}
+		this.setState({loading: true, errorMsg: ''});
+		let name = this.state.NSName;
+		let notes = this.state.NSNotes;
+		let stackType = this.state.NSStack;
+		let token = localStorage.getItem('ErosToken');
+		let fetchData = {
+			method: 'POST',
+			mode: 'cors',
+			body: JSON.stringify({name, stackType, notes}),
+			headers: {
+				'x-auth': token,
+				'Content-Type': 'application/json'
+			},
+		}
+		fetch(serverUrl + '/item', fetchData)
+			.then(res => {
+				if(res.status === 200) {
+					return res.json();
+				} else {
+					throw new Error();
+				}
+			}).then(json => {
+				let {item} = json;
+				let {itemList} = this.state;
+				itemList.push(
+					<tr style={{cursor: 'pointer'}} key={itemList.length + 1} onClick={() => this.onOpenEditModal(item)} >
+	        			<th scope='row'>{itemList.length + 1}</th>
+	        			<td>{item.name}</td>
+	        			<td>{item.IP_address}</td>
+	        			<td>{item.active ? 'Active' : 'Inactive'}</td>
+	        		</tr>
+	        	);
+	        	this.setState({loading: false, itemList, createModalOpen: false});
+			}).catch(e => {
+				this.setState({errorMsg: 'Unable to create server', loading: false});
 			});
 	}
 
@@ -164,7 +218,7 @@ class Inventory extends Component {
 		this.setState({editModalOpen: false});
 	}
 	onOpenCreateModal = () => {
-		this.setState({createModalOpen: true});
+		this.setState({createModalOpen: true, NSName: '', NSStack: '', NSNotes: ''});
 	}
 	onCloseCreateModal = () => {
 		this.setState({createModalOpen: false});
@@ -172,6 +226,15 @@ class Inventory extends Component {
 
 	toggleSwitch = (switchChecked) => {
 		this.setState({switchChecked});
+	}
+	onNSNameChange = (e) => {
+		this.setState({NSName: e.target.value});
+	}
+	onNSStackChange = (e) => {
+		this.setState({NSStack: e.target.value});
+	}
+	onNSNotesChange = (e) => {
+		this.setState({NSNotes: e.target.value});
 	}
 }
 
