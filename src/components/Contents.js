@@ -11,7 +11,7 @@ class Contents extends Component {
 	constructor(props) {
 		super();
 		this.state = {
-			route: 'admin'
+			route: 'inventory'
 		}
 	}
 

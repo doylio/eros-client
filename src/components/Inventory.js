@@ -4,15 +4,26 @@ import Modal from 'react-responsive-modal';
 import Switch from 'react-switch';
 
 //Local
+import LoadingBox from './LoadingBox';
+import {serverUrl} from './../config/config.json';
 import './modal.css';
 
 class Inventory extends Component {
 	constructor(props) {
 		super();
 		this.state = {
-			editModalOpen: true,
+			itemList: null,
+			editModalOpen: false,
+			editModalTarget: {
+				name: '',
+				IP_address: '',
+				stackType: '',
+				notes: '',
+			},
 			createModalOpen: false,
 			switchChecked: true,
+			errorMsg: '',
+			loading: true,
 		};
 	}
   
@@ -24,7 +35,7 @@ class Inventory extends Component {
 
 		return (
 		    <div className='rounded-bottom'>
-		        <table className='table table-light table-hover'>
+		        <table className='table table-light table-hover mb-0'>
 		        	<thead className='thead-dark'>
 		        		<tr>
 		        			<th scope='col'>#</th>
@@ -34,50 +45,34 @@ class Inventory extends Component {
 		        		</tr>
 		        	</thead>
 		        	<tbody>
-		        		<tr style={{cursor: 'pointer'}}>
-		        			<th scope='row'>1</th>
-		        			<td>Delta</td>
-		        			<td>23.123.44.0</td>
-		        			<td>Active</td>
-		        		</tr>
-		           		<tr style={{cursor: 'pointer'}}>
-		        			<th scope='row'>2</th>
-		        			<td>Gamma</td>
-		        			<td>34.14.220.40</td>
-		        			<td>Active</td>
-		        		</tr>
-		        		<tr style={{cursor: 'pointer'}}>
-		        			<th scope='row'>3</th>
-		        			<td>Epsilon</td>
-		        			<td>12.4.20.142</td>
-		        			<td>Active</td>
-		        		</tr>
-		        		<tr style={{cursor: 'pointer'}}>
-		        			<th scope='row'>4</th>
-		        			<td>Theta</td>
-		        			<td>90.41.119.164</td>
-		        			<td>Active</td>
-		        		</tr>
-		        		<tr style={{cursor: 'pointer'}}>
-		        			<th scope='row'>5</th>
-		        			<td>Omega</td>
-		        			<td>8.57.204.93</td>
-		        			<td>Active</td>
-		        		</tr>
+		        			{
+		        				this.state.itemList === null ?
+		        				<tr></tr> :
+		        				this.state.itemList
+		        			}
 		        	</tbody>
 		      	</table>
+	      		<div className='bg-light p-2 d-flex justify-content-center'>
+	      			<LoadingBox loading={this.state.loading} errorMsg={this.state.errorMsg} />
+	      		</div>
+	      		<div className='bg-light p-2 d-flex justify-content-center'>
+        			<button className='btn btn-success m-auto' onClick={this.onOpenCreateModal}>
+        				New Server
+        			</button>
+        		</div>
+
 		      	<Modal open={this.state.editModalOpen} onClose={this.onCloseEditModal} classNames={modalStyle} center>
 		      		<div>
 		      			<div className='row'>
-			      			<h2 className='col-9 card-title'>Delta</h2>
+			      			<h2 className='col-9 card-title'>{this.state.editModalTarget.name}</h2>
 			      			<div class="col-3">
 								<Switch onChange={this.toggleSwitch} checked={this.state.switchChecked} aria-label='on/off-switch' />
 							</div>
 						</div>
-		      			<h6>IP Address: 123.43.74.2</h6>
-		      			<h6>Stack Type:  LAMP</h6>
+		      			<h6>IP Address: {this.state.editModalTarget.IP_address}</h6>
+		      			<h6>Stack Type:  {this.state.editModalTarget.stackType}</h6>
 		      			<h6>Notes:</h6>
-		      			<p className='border p-3'>This server is broken.</p>
+		      			<p className='border p-3'>{this.state.editModalTarget.notes}</p>
 		      			<button className='btn btn-info float-right'>Edit notes</button>
 		      			<div className='float-none' style={{marginTop: '80px'}}>
 			      			<button className='btn btn-warning'>Reboot</button>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -88,45 +83,93 @@ class Inventory extends Component {
 		      	<Modal open={this.state.createModalOpen} onClose={this.onCloseCreateModal} classNames={modalStyle} center>
 			      		<div>
 			      			<div className='row'>
-				      			<h2 className='col-8 card-title'>Create New User</h2>
+				      			<h2 className='col-8 card-title'>Create New Server</h2>
 							</div>
 			      			<div className='container border'>
 			      				<div className='row py-2'>
 				      				<div className='col-1'></div>
-				      				<p className='col-6'>Enter Username:</p>
+				      				<p className='col-6'>Name:</p>
 				      				<input className='col-4' type='text' />
 				      			</div>
 				      			<div className='row py-2'>
 				      				<div className='col-1'></div>
-				      				<p className='col-6'>Enter Password:</p>
-				      				<input className='col-4' type='password' />
-				      			</div>
-				      			<div className='row py-2'>
-				      				<div className='col-1'></div>
-				      				<p className='col-6'>Confirm Password:</p>
-				      				<input className='col-4' type='password' />
-				      			</div>
-				      			<div className='row my-2'>
-				      				<div className='col-7'></div>
-				      				<p><input type='checkbox' />&nbsp;Administrator</p>
+				      				<p className='col-6'>Select Stack Type:</p>
+				      				<select>
+				      						<option>-</option>
+				      						<option value='LAMP'>LAMP</option>
+				      						<option value='MEAN'>MEAN</option>
+				      						<option value='Ruby'>Ruby</option>
+				      						<option value='Django'>Django</option>
+				      				</select>
 				      			</div>
 			      			</div>			      			
 			      			<div className='d-flex justify-content-center' style={{marginTop: '40px'}}>
-				      			<button className='btn btn-success'>Create User</button>
+				      			<button className='btn btn-success'>Create Server</button>
 			      			</div>
 
 			      		</div>
-			      	</Modal>
+			    </Modal>
 		    </div>
     	);
 	}
 
-	onOpenModal = () => {
-		this.setState({editModalOpen: true});
+	componentDidMount() {
+		this.retrieveInventory();
+	}
+
+	retrieveInventory = () => {
+		this.setState({loading: true, errorMsg: ''});
+		let token = localStorage.getItem('ErosToken');
+		let fetchData = {
+			method: 'GET',
+			mode: 'cors',
+			headers: {
+				'x-auth': token,
+			}
+		}
+		fetch(serverUrl + '/item', fetchData)
+			.then(res => {
+				if(res.status === 200) {
+					return res.json();
+				} else {
+					throw new Error();
+				}
+			}).then(json => {
+				let {items} = json;
+				if(items.length === 0) {
+					return this.setState({loading: false, errorMsg: 'No items found'})
+				}
+				let itemList = [];
+				for(let i = 0; i < items.length; i++) {
+					itemList.push(
+						<tr style={{cursor: 'pointer'}} key={i + 1} onClick={() => this.onOpenEditModal(items[i])} >
+		        			<th scope='row'>{i + 1}</th>
+		        			<td>{items[i].name}</td>
+		        			<td>{items[i].IP_address}</td>
+		        			<td>{items[i].active ? 'Active' : 'Inactive'}</td>
+		        		</tr>
+		        	);
+				}
+				console.log(json);
+				this.setState({itemList, loading: false});
+			}).catch(e => {
+				this.setState({loading: false, errorMsg: 'Unable to retrieve Inventory'});
+			});
+	}
+
+	onOpenEditModal = (target) => {
+		this.setState({editModalOpen: true, editModalTarget: target});
 	}
 	onCloseEditModal = () => {
 		this.setState({editModalOpen: false});
 	}
+	onOpenCreateModal = () => {
+		this.setState({createModalOpen: true});
+	}
+	onCloseCreateModal = () => {
+		this.setState({createModalOpen: false});
+	}
+
 	toggleSwitch = (switchChecked) => {
 		this.setState({switchChecked});
 	}
