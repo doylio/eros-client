@@ -1,8 +1,6 @@
 //Libraries
 import React, { Component } from 'react';
 
-//Local
-
 class NavTabs extends Component {
 	constructor(props) {
 		super();

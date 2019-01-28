@@ -32,7 +32,6 @@ class Admin extends Component {
 		}
  
   		if(this.state.superuser) {
-  			console.log()
   			return (
 			    <div>
 					<table className='table table-light table-hover mb-0'>

@@ -1,5 +1,6 @@
 {
   "name": "eros-client",
+  "homepage": "https://eros-client.herokuapp.com/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
