@@ -12,7 +12,7 @@ class Admin extends Component {
 	constructor(props) {
 		super();
 		this.state = {
-			editModalOpen: true,
+			editModalOpen: false,
 			createModalOpen: false,
 			switchChecked: true,
 			loading: false,
@@ -78,7 +78,7 @@ class Admin extends Component {
 			      		<div>
 			      			<div className='row'>
 				      			<h2 className='col-8 card-title'>shawn.doyle</h2>
-				      			<div class="col-4">
+				      			<div className="col-4">
 				      				<label htmlFor='admin-switch'>
 				      					<span style={{fontSize: '1.4em'}}>Admin&nbsp;</span>
 										<Switch onChange={this.toggleSwitch} checked={this.state.switchChecked} id='admin-switch'/>

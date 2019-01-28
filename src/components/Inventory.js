@@ -1,10 +1,10 @@
 //Libraries
 import React, { Component } from 'react';
 import Modal from 'react-responsive-modal';
-import Switch from 'react-switch';
 
 //Local
 import LoadingBox from './LoadingBox';
+import EditMenu from './EditMenu';
 import {serverUrl} from './../config/config.json';
 import './modal.css';
 
@@ -13,13 +13,7 @@ class Inventory extends Component {
 		super();
 		this.state = {
 			itemList: null,
-			editModalOpen: false,
-			editModalTarget: {
-				name: '',
-				IP_address: '',
-				stackType: '',
-				notes: '',
-			},
+			editModalItem: null,
 			NSName: '',
 			NSStack: '',
 			NSNotes: '',
@@ -51,7 +45,16 @@ class Inventory extends Component {
 		        			{
 		        				this.state.itemList === null ?
 		        				<tr></tr> :
-		        				this.state.itemList
+		        				this.state.itemList.map((item, i) => {
+		        					return (
+										<tr style={{cursor: 'pointer'}} key={i + 1} onClick={() => this.openEditModal(item)} >
+						        			<th scope='row'>{i + 1}</th>
+						        			<td>{this.state.itemList[i].name}</td>
+						        			<td>{this.state.itemList[i].IP_address}</td>
+						        			<td>{this.state.itemList[i].active ? 'Active' : 'Inactive'}</td>
+						        		</tr>
+						        	);
+		        				})
 		        			}
 		        	</tbody>
 		      	</table>
@@ -63,26 +66,6 @@ class Inventory extends Component {
         				New Server
         			</button>
         		</div>
-
-		      	<Modal open={this.state.editModalOpen} onClose={this.onCloseEditModal} classNames={modalStyle} center>
-		      		<div>
-		      			<div className='row'>
-			      			<h2 className='col-9 card-title'>{this.state.editModalTarget.name}</h2>
-			      			<div class="col-3">
-								<Switch onChange={this.toggleSwitch} checked={this.state.switchChecked} aria-label='on/off-switch' />
-							</div>
-						</div>
-		      			<h6>IP Address: {this.state.editModalTarget.IP_address}</h6>
-		      			<h6>Stack Type:  {this.state.editModalTarget.stackType}</h6>
-		      			<h6>Notes:</h6>
-		      			<p className='border p-3'>{this.state.editModalTarget.notes}</p>
-		      			<button className='btn btn-info float-right'>Edit notes</button>
-		      			<div className='float-none' style={{marginTop: '80px'}}>
-			      			<button className='btn btn-warning'>Reboot</button>&nbsp;&nbsp;&nbsp;&nbsp;
-			      			<button className='btn btn-danger'>Reset</button>
-		      			</div>
-		      		</div>
-		      	</Modal>
 		      	<Modal open={this.state.createModalOpen} onClose={this.onCloseCreateModal} classNames={modalStyle} center>
 			      		<div>
 			      			<div className='row'>
@@ -122,6 +105,12 @@ class Inventory extends Component {
 			      			<LoadingBox loading={this.state.loading} errorMsg={this.state.errorMsg} />
 			      		</div>
 			    </Modal>
+
+			    {
+			    	this.state.editModalItem === null ?
+			    	<div></div> :
+			    	<EditMenu item={this.state.editModalItem} onClose={this.onCloseEditModal} updateChanges={this.updateChanges} deleteItem={this.deleteItem} />
+			    }
 		    </div>
     	);
 	}
@@ -152,20 +141,9 @@ class Inventory extends Component {
 				if(items.length === 0) {
 					return this.setState({loading: false, errorMsg: 'No items found'})
 				}
-				let itemList = [];
-				for(let i = 0; i < items.length; i++) {
-					itemList.push(
-						<tr style={{cursor: 'pointer'}} key={i + 1} onClick={() => this.onOpenEditModal(items[i])} >
-		        			<th scope='row'>{i + 1}</th>
-		        			<td>{items[i].name}</td>
-		        			<td>{items[i].IP_address}</td>
-		        			<td>{items[i].active ? 'Active' : 'Inactive'}</td>
-		        		</tr>
-		        	);
-				}
-				this.setState({itemList, loading: false});
+				this.setState({itemList: items, loading: false});
 			}).catch(e => {
-				this.setState({loading: false, errorMsg: 'Unable to retrieve Inventory'});
+				this.setState({loading: false, errorMsg: 'Unable to get Inventory'});
 			});
 	}
 
@@ -197,25 +175,18 @@ class Inventory extends Component {
 			}).then(json => {
 				let {item} = json;
 				let {itemList} = this.state;
-				itemList.push(
-					<tr style={{cursor: 'pointer'}} key={itemList.length + 1} onClick={() => this.onOpenEditModal(item)} >
-	        			<th scope='row'>{itemList.length + 1}</th>
-	        			<td>{item.name}</td>
-	        			<td>{item.IP_address}</td>
-	        			<td>{item.active ? 'Active' : 'Inactive'}</td>
-	        		</tr>
-	        	);
+				itemList.push(item);
 	        	this.setState({loading: false, itemList, createModalOpen: false});
 			}).catch(e => {
 				this.setState({errorMsg: 'Unable to create server', loading: false});
 			});
 	}
 
-	onOpenEditModal = (target) => {
-		this.setState({editModalOpen: true, editModalTarget: target});
+	openEditModal = (item) => {
+		this.setState({editModalItem: item});
 	}
 	onCloseEditModal = () => {
-		this.setState({editModalOpen: false});
+		this.setState({editModalItem: null});
 	}
 	onOpenCreateModal = () => {
 		this.setState({createModalOpen: true, NSName: '', NSStack: '', NSNotes: ''});
@@ -224,9 +195,6 @@ class Inventory extends Component {
 		this.setState({createModalOpen: false});
 	}
 
-	toggleSwitch = (switchChecked) => {
-		this.setState({switchChecked});
-	}
 	onNSNameChange = (e) => {
 		this.setState({NSName: e.target.value});
 	}
@@ -235,6 +203,24 @@ class Inventory extends Component {
 	}
 	onNSNotesChange = (e) => {
 		this.setState({NSNotes: e.target.value});
+	}
+
+	updateChanges = (item) => {
+		let {itemList} = this.state;
+		itemList = itemList.map(n => {
+			if(n._id === item._id) {
+				return item;
+			}
+			return n;
+		})
+		this.setState({itemList});
+	}
+
+	deleteItem = () => {
+		let {_id} = this.state.editModalItem;
+		let {itemList} = this.state;
+		itemList = itemList.filter(item => item._id !== _id);
+		this.setState({itemList, editModalItem: null});
 	}
 }
 

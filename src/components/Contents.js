@@ -18,7 +18,7 @@ class Contents extends Component {
 	render() {
     	return (
     		<div className='container mt-9' style={{marginTop: '150px'}}>
-    			<NavTabs />
+    			<NavTabs changeRoute={this.changeRoute} />
     			{this.state.route === 'inventory'
     				? <Inventory />
     				: (this.state.route === 'settings'
@@ -29,6 +29,10 @@ class Contents extends Component {
     		</div>
     	);
   	}
+
+    changeRoute = (route) => {
+        this.setState({route});
+    }
 }
 
 export default Contents;

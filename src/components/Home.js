@@ -38,7 +38,7 @@ class Home extends Component {
 		this.setState({modalOpen: false});
 	}
 
-	sendModalMessage = (modalMsg) => {
+	sendModalMessage = (modalMsg) => {  //DELETE LATER IF UNUSED
 		this.setState({modalOpen: true, modalMsg});
 	}
 }

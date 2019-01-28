@@ -11,10 +11,10 @@ class Settings extends Component {
       	<div className='row'>
       		<h5 className='col-4'>Background Color</h5>
       		<div className='col-4'>
-      			<button className='color-button' style={{backgroundColor: '#275E88'}}>&nbsp;</button>
-      			<button className='color-button' style={{backgroundColor: '#20a327'}}>&nbsp;</button>
-      			<button className='color-button' style={{backgroundColor: '#cc8c2c'}}>&nbsp;</button>
-      			<button className='color-button' style={{backgroundColor: '#7b40c4'}}>&nbsp;</button>
+      			<button className='color-button' onClick={() => this.changeBackground("#275E88")} style={{backgroundColor: '#275E88'}}>&nbsp;</button>
+      			<button className='color-button' onClick={() => this.changeBackground("#20a327")} style={{backgroundColor: '#20a327'}}>&nbsp;</button>
+      			<button className='color-button' onClick={() => this.changeBackground("#cc8c2c")} style={{backgroundColor: '#cc8c2c'}}>&nbsp;</button>
+      			<button className='color-button' onClick={() => this.changeBackground("#7b40c4")} style={{backgroundColor: '#7b40c4'}}>&nbsp;</button>
       		</div>
       	</div>
       	<br/><br/><br/>
@@ -25,6 +25,10 @@ class Settings extends Component {
       	</div>
       </div>
     );
+  }
+
+  changeBackground = (hexValue) => {
+    document.querySelector('body').style.backgroundColor = hexValue;
   }
 }
 
