@@ -29,11 +29,11 @@ class Login extends Component {
 			        	<div className='container px-5 pb-5 w-75'>
 							<div className="form-group">
 							    <label className='text-light' htmlFor="username-input">Username</label>
-							    <input onChange={this.onEnterUsername} type="email" className="form-control" id="username-input" placeholder="Username" />
+							    <input onChange={this.onEnterUsername} onKeyPress={this.handleKeyPress} type="email" className="form-control" id="username-input" placeholder="Username" />
 							</div>
 							<div className="form-group">
 							    <label className='text-light' htmlFor="password-input">Password</label>
-							    <input onChange={this.onEnterPassword} type="password" className="form-control" id="password-input" placeholder="Password" />
+							    <input onChange={this.onEnterPassword} onKeyPress={this.handleKeyPress} type="password" className="form-control" id="password-input" placeholder="Password" />
 							</div>
 						 	<button onClick={this.onLoginButton} className="btn btn-danger">Login</button>
 						 	<div className='container pt-2'>
@@ -47,12 +47,18 @@ class Login extends Component {
 	}
 
 	onEnterUsername = (evt) => {
-		this.setState({username: evt.target.value})	;
+		this.setState({username: evt.target.value});
 	}
 
 	onEnterPassword = (evt) => {
-		this.setState({password: evt.target.value})	;
+		this.setState({password: evt.target.value});
 	}
+	handleKeyPress = (evt) => {
+		if(evt.charCode === 13) {
+			this.onLoginButton()
+		}
+	}
+
 
 
 	onLoginButton = () => {
