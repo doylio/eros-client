@@ -56,7 +56,7 @@ class EditMenu extends React.Component {
 		      		</div>
 		      		<LoadingBox loading={this.state.loading} errorMsg={this.state.errorMsg} />
 		      	</Modal>
-		      	<Modal open={this.state.deleteModal} onClose={this.closeDeleteModal} >
+		      	<Modal open={this.state.deleteModal} onClose={this.closeDeleteModal} classNames={{modal: 'rounded'}}>
 		      		<br/>
 		      		<h5>Are you sure you want to delete?</h5>
 		      		<button onClick={this.onDeleteBtn} className='btn btn-danger'>Delete</button>&nbsp;&nbsp;&nbsp;&nbsp;

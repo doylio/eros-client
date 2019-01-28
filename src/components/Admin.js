@@ -1,22 +1,28 @@
 //Libraries
 import React, { Component } from 'react';
 import Modal from 'react-responsive-modal';
-import Switch from 'react-switch';
 
 //Local
 import './modal.css';
 import LoadingBox from './LoadingBox';
+import EditUser from './EditUser';
+import {serverUrl} from './../config/config';
 
 
 class Admin extends Component {
 	constructor(props) {
 		super();
 		this.state = {
-			editModalOpen: false,
+			users: null,
 			createModalOpen: false,
 			switchChecked: true,
 			loading: false,
 			errorMsg: '',
+			newUserUsername: '',
+			newUserPassword: '',
+			confirmPassword: '',
+			editUser: null,
+			superuser: true,
 		}
 	}
 
@@ -24,8 +30,9 @@ class Admin extends Component {
   		const modalStyle = {
 			modal: 'card p-5 server-modal'
 		}
-
-  		if(this.props.superuser) {
+ 
+  		if(this.state.superuser) {
+  			console.log()
   			return (
 			    <div>
 					<table className='table table-light table-hover mb-0'>
@@ -38,77 +45,32 @@ class Admin extends Component {
 			        		</tr>
 			        	</thead>
 			        	<tbody>
-			        		<tr style={{cursor: 'pointer'}}>
-			        			<th scope='row'>1</th>
-			        			<td>shawn.doyle</td>
-			        			<td>Yes</td>
-			        			<td>4/6/17</td>
-			        		</tr>
-			           		<tr style={{cursor: 'pointer'}}>
-			        			<th scope='row'>2</th>
-			        			<td>simon.gravel</td>
-			        			<td>Yes</td>
-			        			<td>9/10/18</td>
-			        		</tr>
-			        		<tr style={{cursor: 'pointer'}}>
-			        			<th scope='row'>3</th>
-			        			<td>luke.skywalker</td>
-			        			<td>No</td>
-			        			<td>7/3/12</td>
-			        		</tr>
-			        		<tr style={{cursor: 'pointer'}}>
-			        			<th scope='row'>4</th>
-			        			<td>han.solo</td>
-			        			<td>No</td>
-			        			<td>6/11/19</td>
-			        		</tr>
-			        		<tr style={{cursor: 'pointer'}}>
-			        			<th scope='row'>5</th>
-			        			<td>leia.organa</td>
-			        			<td>No</td>
-			        			<td>1/8/16</td>
-			        		</tr>
+			        		{
+			        			this.state.users === null ?
+			        			<tr></tr> :
+			        			this.state.users.map((user, i) => {
+			        				return (
+				        				<tr style={{cursor: 'pointer'}} key={i + 1} onClick={() => this.onOpenEditModal(user)} >
+						        			<th scope='row'>{i + 1}</th>
+						        			<td>{user.username}</td>
+						        			<td>{user.superuser ? 'Yes' : 'No'}</td>
+						        			<td>{user.lastLogin}</td>
+						        		</tr>
+						        	);
+			        			})
+			        		}
 			        	</tbody>
 			      	</table>
 	        		<div className='bg-light p-2 d-flex justify-content-center'>
-	        			<button className='btn btn-success m-auto'>New User</button>
+	        			<button onClick={this.onOpenCreateModal} className='btn btn-success m-auto'>New User</button>
 	        		</div>
+	        		<LoadingBox loading={this.state.loading} errorMsg={this.state.errorMsg} />
 
-			      	<Modal open={this.state.editModalOpen} onClose={this.onCloseEditModal} classNames={modalStyle} center>
-			      		<div>
-			      			<div className='row'>
-				      			<h2 className='col-8 card-title'>shawn.doyle</h2>
-				      			<div className="col-4">
-				      				<label htmlFor='admin-switch'>
-				      					<span style={{fontSize: '1.4em'}}>Admin&nbsp;</span>
-										<Switch onChange={this.toggleSwitch} checked={this.state.switchChecked} id='admin-switch'/>
-									</label>
-								</div>
-							</div>
-			      			<h6>Last Login:  12/4/18</h6><br />
-			      			<h6>Change Password:</h6>
-			      			<div className='container border'>
-				      			<div className='row py-2'>
-				      				<div className='col-1'></div>
-				      				<p className='col-6'>Enter New Password:</p>
-				      				<input className='col-4' type='password' />
-				      			</div>
-				      			<div className='row py-2'>
-				      				<div className='col-1'></div>
-				      				<p className='col-6'>Confirm Password:</p>
-				      				<input className='col-4' type='password' />
-				      			</div>
-				      			<div className='row mb-2'>
-				      				<div className='col-7'></div>
-				      				<button className='btn btn-info'>Change Pasword</button>
-				      			</div>
-			      			</div>			      			
-			      			<div className='float-none' style={{marginTop: '40px'}}>
-				      			<button className='btn btn-danger'>Delete User</button>
-			      			</div>
-			      			<LoadingBox loading={this.state.loading} errorMsg={this.state.errorMsg} />
-			      		</div>
-			      	</Modal>
+			      	{
+			      		this.state.editUser === null ?
+			      		<div></div> :
+			      		<EditUser user={this.state.editUser} onClose={this.onCloseEditModal} updateChanges={this.updateChanges} deleteUser={this.deleteUser} />
+			      	}
 
 			      	<Modal open={this.state.createModalOpen} onClose={this.onCloseCreateModal} classNames={modalStyle} center>
 			      		<div>
@@ -119,27 +81,29 @@ class Admin extends Component {
 			      				<div className='row py-2'>
 				      				<div className='col-1'></div>
 				      				<p className='col-6'>Enter Username:</p>
-				      				<input className='col-4' type='text' />
+				      				<input className='col-4' type='text' onChange={this.onNewUserNameChange} />
 				      			</div>
 				      			<div className='row py-2'>
 				      				<div className='col-1'></div>
 				      				<p className='col-6'>Enter Password:</p>
-				      				<input className='col-4' type='password' />
+				      				<input className='col-4' type='password' onChange={this.onNewUserPasswordChange} />
 				      			</div>
 				      			<div className='row py-2'>
 				      				<div className='col-1'></div>
 				      				<p className='col-6'>Confirm Password:</p>
-				      				<input className='col-4' type='password' />
+				      				<input className='col-4' type='password' onChange={this.onConfirmPasswordChange} />
 				      			</div>
 				      			<div className='row my-2'>
 				      				<div className='col-7'></div>
-				      				<p><input type='checkbox' />&nbsp;Administrator</p>
+				      				<p><input id='su-check' type='checkbox' />&nbsp;Administrator</p>
 				      			</div>
 			      			</div>			      			
 			      			<div className='d-flex justify-content-center' style={{marginTop: '40px'}}>
-				      			<button className='btn btn-success'>Create User</button>
+				      			<button className='btn btn-success' onClick={this.onNewUserBtn} >Create User</button>
 			      			</div>
-			      			<LoadingBox loading={this.state.loading} errorMsg={this.state.errorMsg} />
+  				      		<div className='bg-light p-2 d-flex justify-content-center'>
+				      			<LoadingBox loading={this.state.loading} errorMsg={this.state.errorMsg} />
+				      		</div>
 			      		</div>
 			      	</Modal>
 			    </div>
@@ -153,12 +117,46 @@ class Admin extends Component {
   		}
   	}
 
-  	onOpenEditModal = () => {
-  		this.setState({editModalOpen: true});
+  	componentDidMount = () => {
+  		this.retrieveUsers();
+  	}
+
+  	retrieveUsers = () => {
+  		this.setState({loading: true, errorMsg: ''});
+		let token = localStorage.getItem('ErosToken');
+		let fetchData = {
+			method: 'GET',
+			mode: 'cors',
+			headers: {
+				'x-auth': token,
+			}
+		}
+		fetch(serverUrl + '/user', fetchData)
+			.then(res => {
+				if(res.status === 200) {
+					return res.json();
+				} else if(res.status === 401) {
+					return this.setState({superuser: false});
+				} else {
+					throw new Error();
+				}
+			}).then(json => {
+				let {users} = json;
+				if(users.length === 0) {
+					return this.setState({loading: false, errorMsg: 'No items found'});
+				}
+				this.setState({users, loading: false});
+			}).catch(e => {
+				this.setState({loading: false, errorMsg: 'Unable to get user data'});
+			});
+  	}
+
+  	onOpenEditModal = (user) => {
+  		this.setState({editUser: user});
   	}
 
   	onCloseEditModal = () => {
-  		this.setState({editModalOpen: false});
+  		this.setState({editUser: null});
   	}
 
   	onOpenCreateModal = () => {
@@ -172,6 +170,76 @@ class Admin extends Component {
   	toggleSwitch = (switchChecked) => {
   		this.setState({switchChecked});
   	}
+
+  	onNewUserNameChange = (evt) => {
+  		this.setState({newUserUsername: evt.target.value});
+  	}
+
+  	onNewUserPasswordChange = (evt) =>{
+  		this.setState({newUserPassword: evt.target.value});
+  	}
+
+  	onConfirmPasswordChange = (evt) => {
+  		this.setState({confirmPassword: evt.target.value});
+  	}
+
+  	onNewUserBtn = () => {
+  		let {newUserUsername, newUserPassword, confirmPassword} = this.state;
+  		if(newUserPassword === '' || newUserUsername === '' || confirmPassword === '') {
+  			return this.setState({errorMsg: 'Please enter a username and password'});
+  		}
+  		if(newUserPassword !== confirmPassword) {
+  			return this.setState({errorMsg: 'Passwords do not match'});
+  		}
+  		this.setState({loading: true, errorMsg: ''});
+  		let superuser = document.querySelector('#su-check').checked;
+  		let token = localStorage.getItem('ErosToken');
+  		let newUser = {
+  			username: newUserUsername,
+  			password: newUserPassword,
+  			superuser
+  		}
+		let fetchData = {
+			method: 'POST',
+			mode: 'cors',
+			headers: {
+				'x-auth': token,
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(newUser),
+		};
+		return fetch(serverUrl + '/user', fetchData)
+			.then(res => {
+				if(res.status === 200) {
+					return res.json();
+				}
+			}).then(json => {
+				let {user} = json;
+				let {users} = this.state;
+				users.push(user);
+				this.setState({users, loading: false, createModalOpen: false});
+			}).catch(e => {
+				this.setState({loading: false, errorMsg: 'Error: Unable to create user'});
+			})
+  	}
+
+  	updateChanges = (user) => {
+		let {users} = this.state;
+		users = users.map(n => {
+			if(n._id === user._id) {
+				return user;
+			}
+			return n;
+		})
+		this.setState({users});
+	}
+
+	deleteUser = () => {
+		let {_id} = this.state.editUser;
+		let {users} = this.state;
+		users = users.filter(user => user._id !== _id);
+		this.setState({users, editUser: null});
+	}
 }
 
 export default Admin;

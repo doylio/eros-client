@@ -51,7 +51,11 @@ class Inventory extends Component {
 						        			<th scope='row'>{i + 1}</th>
 						        			<td>{this.state.itemList[i].name}</td>
 						        			<td>{this.state.itemList[i].IP_address}</td>
-						        			<td>{this.state.itemList[i].active ? 'Active' : 'Inactive'}</td>
+						        			{
+						        				this.state.itemList[i].active ? 
+						        				<td className='text-success'>Active</td> : 
+						        				<td className='text-danger'>Inactive</td>
+						        			}
 						        		</tr>
 						        	);
 		        				})
